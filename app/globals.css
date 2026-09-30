@@ -6,8 +6,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-onest), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -37,6 +37,17 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-brand: var(--brand);
+  --color-sage-soft: var(--sage-soft);
+  --color-sage-ink: var(--sage-ink);
+  --color-gold: var(--gold);
+  --color-gold-soft: var(--gold-soft);
+  --color-gold-ink: var(--gold-ink);
+  --color-sky-soft: var(--sky-soft);
+  --color-sky-ink: var(--sky-ink);
+  --color-amber-soft: var(--amber-soft);
+  --color-amber-ink: var(--amber-ink);
+  --color-danger-soft: var(--danger-soft);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -46,73 +57,97 @@
   --radius-4xl: calc(var(--radius) + 16px);
 }
 
+/* Палитра та же, что у iOS, Android и React Native: шалфей, тёплое золото, кремовая основа.
+   Тексты на цветных фонах затемнены до контраста WCAG AA. */
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --radius: 0.875rem;
+  --background: #f8f6f0;
+  --foreground: #33473e;
+  --card: #ffffff;
+  --card-foreground: #33473e;
+  --popover: #ffffff;
+  --popover-foreground: #33473e;
+  --primary: #4b7361;
+  --primary-foreground: #ffffff;
+  --secondary: #e3eee6;
+  --secondary-foreground: #2f4a3c;
+  --muted: #efede2;
+  --muted-foreground: #5d6d65;
+  --accent: #e3eee6;
+  --accent-foreground: #2f4a3c;
+  --destructive: #a94b37;
+  --border: #e4dfd2;
+  --input: #d9d3c4;
+  --ring: #5b8570;
+  --chart-1: #5b8570;
+  --chart-2: #c9a24f;
+  --chart-3: #e0a88f;
+  --chart-4: #8fa8c9;
+  --chart-5: #b59bc9;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #33473e;
+  --sidebar-primary: #4b7361;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e3eee6;
+  --sidebar-accent-foreground: #2f4a3c;
+  --sidebar-border: #e4dfd2;
+  --sidebar-ring: #5b8570;
+  --brand: #5b8570;
+  --sage-soft: #e3eee6;
+  --sage-ink: #2f4a3c;
+  --gold: #c9a24f;
+  --gold-soft: #f3e2b8;
+  --gold-ink: #7a5c1f;
+  --sky-soft: #e1eef8;
+  --sky-ink: #25567d;
+  --amber-soft: #fbf1de;
+  --amber-ink: #8f4f12;
+  --danger-soft: #fbeee8;
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --background: #131a17;
+  --foreground: #e7eee9;
+  --card: #1b2420;
+  --card-foreground: #e7eee9;
+  --popover: #1b2420;
+  --popover-foreground: #e7eee9;
+  --primary: #8fbba5;
+  --primary-foreground: #10201a;
+  --secondary: #24312b;
+  --secondary-foreground: #d3e6db;
+  --muted: #222c27;
+  --muted-foreground: #9fb0a7;
+  --accent: #24312b;
+  --accent-foreground: #d3e6db;
+  --destructive: #e08b76;
+  --border: #2c3832;
+  --input: #34413a;
+  --ring: #8fbba5;
+  --chart-1: #8fbba5;
+  --chart-2: #d9b765;
+  --chart-3: #e0a88f;
+  --chart-4: #8fa8c9;
+  --chart-5: #b59bc9;
+  --sidebar: #1b2420;
+  --sidebar-foreground: #e7eee9;
+  --sidebar-primary: #8fbba5;
+  --sidebar-primary-foreground: #10201a;
+  --sidebar-accent: #24312b;
+  --sidebar-accent-foreground: #d3e6db;
+  --sidebar-border: #2c3832;
+  --sidebar-ring: #8fbba5;
+  --brand: #8fbba5;
+  --sage-soft: #24362d;
+  --sage-ink: #bfe0cf;
+  --gold: #d9b765;
+  --gold-soft: #3a3019;
+  --gold-ink: #ecd08a;
+  --sky-soft: #1f3244;
+  --sky-ink: #a8cdee;
+  --amber-soft: #3a2b17;
+  --amber-ink: #f0bd83;
+  --danger-soft: #3a211b;
 }
 
 @layer base {
@@ -120,7 +155,11 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "tnum" 0;
+  }
+  .tabular {
+    font-variant-numeric: tabular-nums;
   }
 }
 
@@ -135,4 +174,24 @@
 
 .animate-shake {
   animation: shake 0.4s ease-in-out;
+}
+
+/* Leaflet: карта не должна перекрывать шапку и диалоги */
+.leaflet-container {
+  font-family: inherit;
+  z-index: 0;
+}
+.leaflet-pane,
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 1 !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

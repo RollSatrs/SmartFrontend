@@ -4,8 +4,17 @@ import userEvent from "@testing-library/user-event"
 import { LoginForm } from "./login-form"
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: vi.fn() }),
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }))
+
+vi.mock("@/lib/auth", () => ({
+  useAuth: () => ({ user: null, loading: false, setUser: vi.fn(), logout: vi.fn() }),
+  homeFor: () => "/resident",
+}))
+
+const login = vi.fn()
+vi.mock("@/lib/services", () => ({ authApi: { login: (...args: unknown[]) => login(...args) } }))
 
 describe("LoginForm", () => {
   it("показывает ошибку валидации и не отправляет запрос при коротком пароле", async () => {
@@ -16,8 +25,7 @@ describe("LoginForm", () => {
     await user.type(screen.getByLabelText("Пароль"), "123")
     await user.click(screen.getByRole("button", { name: /войти/i }))
 
-    expect(
-      await screen.findByText("Пароль должен содержать не менее 8 символов.")
-    ).toBeInTheDocument()
+    expect(await screen.findByText("Пароль должен содержать не менее 8 символов.")).toBeInTheDocument()
+    expect(login).not.toHaveBeenCalled()
   })
 })

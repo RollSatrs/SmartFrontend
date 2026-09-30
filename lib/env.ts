@@ -1,7 +1,9 @@
 import { z } from "zod"
 
 const envSchema = z.object({
-  NEXT_PUBLIC_API_URL: z.string().min(1, "NEXT_PUBLIC_API_URL обязателен"),
+  // По умолчанию запросы идут на тот же адрес сайта (`/api`), а Next.js проксирует их на backend.
+  // Так страница по HTTPS может работать с backend по HTTP, и куки входа остаются на одном домене.
+  NEXT_PUBLIC_API_URL: z.string().min(1).default("/api"),
 })
 
 const parsed = envSchema.safeParse({

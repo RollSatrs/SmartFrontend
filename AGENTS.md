@@ -10,7 +10,7 @@
 
 - **Backend**: [RollSatrs/SmartBackend](https://github.com/RollSatrs/SmartBackend) — NestJS + Drizzle ORM + PostgreSQL. REST API, авторизация, хранение идей/статусов/категорий, AI-классификация идей. Общий бэкенд для мобильного приложения и сайта.
 - **Mobile (текущий приоритет)**: [RollSatrs/SmartMobile](https://github.com/RollSatrs/SmartMobile) — React Native/Expo. Основной клиент для защиты хакатона: кабинет жителя, форма подачи идеи с картой, кабинет госоргана.
-- **Frontend / сайт (на паузе)**: [RollSatrs/SmartFrontend](https://github.com/RollSatrs/SmartFrontend) — Next.js + shadcn/ui. Тот же функционал, что и в мобильном приложении, но как веб-версия. Issues заведены и ждут — приоритет ниже мобильного и backend, ведёт Адиль после завершения основного backend.
+- **Frontend / сайт (готов, 2026-09-30)**: [RollSatrs/SmartFrontend](https://github.com/RollSatrs/SmartFrontend) — Next.js 16 + Tailwind 4 + shadcn/ui. Тот же функционал, что и в мобильных приложениях: кабинет жителя (идея с фото, картой, улицей и ИИ), кабинет госоргана (обращения со сроками, карта, аналитика, нагрузка команды). Запросы к backend идут через прокси `/api` (см. README), публикация на Vercel описана там же.
 
 ## Active team
 

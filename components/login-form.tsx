@@ -1,143 +1,109 @@
 "use client"
 
-import { cn } from "@/lib/utils"
+import Link from "next/link"
+import { useRouter, useSearchParams } from "next/navigation"
+import { useState } from "react"
+import { IconAlertCircle } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field"
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { useEffect, useState } from "react"
-import { api } from "@/lib/api"
-import { getErrorMessage } from "@/lib/get-error-message"
-import { Spinner } from "./ui/spinner"
-import { useRouter } from "next/navigation"
+import { Spinner } from "@/components/ui/spinner"
+import { errorText } from "@/lib/api"
+import { homeFor, useAuth } from "@/lib/auth"
+import { authApi } from "@/lib/services"
+import { cn } from "@/lib/utils"
 
-export function LoginForm({
-  className,
-  ...props
-}: React.ComponentProps<"form">) {
+export function LoginForm({ className, ...props }: React.ComponentProps<"form">) {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const router = useRouter()
+  const params = useSearchParams()
+  const { setUser } = useAuth()
+  const expired = params.get("expired") === "1"
 
-  useEffect(() => {
-    if (!error) return
-    const timer = setTimeout(() => {
-      setError("")
-    }, 2000)
-    return () => clearTimeout(timer)
-  }, [error])
-
-  const handlerLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setLoading(true)
-
+    setError("")
     if (password.length < 8) {
       setError("Пароль должен содержать не менее 8 символов.")
-      setLoading(false)
       return
     }
-
+    setLoading(true)
     try {
-      await api.post("/auth/login", { email, password })
-      router.push("/")
+      const user = await authApi.login(email.trim(), password)
+      setUser(user)
+      router.replace(homeFor(user.role))
     } catch (err) {
-      console.error(err)
-      setError(getErrorMessage(err))
+      setError(errorText(err))
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <form
-      onSubmit={handlerLogin}
-      className={cn("flex flex-col gap-6", className)}
-      {...props}
-    >
+    <form onSubmit={onSubmit} className={cn("flex flex-col gap-6", className)} {...props}>
       <FieldGroup>
-        <div className="flex flex-col items-center gap-1 text-center">
-          <h1 className="text-2xl font-bold">Вход в аккаунт</h1>
-          <p className="text-muted-foreground text-sm text-balance">
-            Введите свой email, чтобы войти в аккаунт
-          </p>
+        <div className="space-y-2">
+          <h1 className="text-3xl font-semibold tracking-tight">Вход</h1>
+          <p className="text-muted-foreground text-sm">Войдите, чтобы подать идею или вести обращения.</p>
         </div>
+
+        {expired && !error && (
+          <p role="status" className="bg-gold-soft text-gold-ink rounded-lg px-3 py-2 text-sm">
+            Сессия истекла. Войдите снова.
+          </p>
+        )}
+
         <Field>
           <FieldLabel htmlFor="email">Email</FieldLabel>
           <Input
             id="email"
             type="email"
-            placeholder="m@example.com"
+            autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            className="h-11"
             required
           />
         </Field>
         <Field>
           <div className="flex items-center">
             <FieldLabel htmlFor="password">Пароль</FieldLabel>
-            <a
-              href="/forgot-password"
-              className="ml-auto text-sm underline-offset-4 hover:underline"
-            >
+            <Link href="/forgot-password" className="text-muted-foreground hover:text-foreground ml-auto text-sm underline-offset-4 hover:underline">
               Забыли пароль?
-            </a>
+            </Link>
           </div>
           <Input
             id="password"
             type="password"
+            autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            className="h-11"
             required
           />
         </Field>
 
-        <div
-          className={cn(
-            "overflow-hidden transition-all duration-300 ease-in-out",
-            error ? "max-h-16 opacity-100 mt-1" : "max-h-0 opacity-0 mt-0"
-          )}
-        >
-          <div
-            className={cn(
-              "flex items-center gap-2 rounded-md border border-red-200 bg-red-50 px-2 py-1 text-xs text-red-700",
-              error && "animate-shake"
-            )}
-          >
-            <span className="leading-none">⚠️</span>
-            <span className="leading-tight">{error}</span>
-          </div>
-        </div>
+        {error && (
+          <p role="alert" className="bg-danger-soft text-destructive flex items-start gap-2 rounded-lg px-3 py-2 text-sm">
+            <IconAlertCircle className="mt-0.5 size-4 shrink-0" aria-hidden />
+            <span>{error}</span>
+          </p>
+        )}
 
-        <Field>
-          <Button type="submit">
-            {loading ? "Вход..." : "Войти"}
-            {loading ? <Spinner className="size-6" /> : ""}
-          </Button>
-        </Field>
-        {/* <FieldSeparator>Или продолжить с помощью</FieldSeparator> */}
-        <Field>
-          {/* <Button variant="outline" type="button">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-              <path
-                d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"
-                fill="currentColor"
-              />
-            </svg>
-            Войти через GitHub
-          </Button> */}
-          <FieldDescription className="text-center">
-            Нет аккаунта?{" "}
-            <a href="signup" className="underline underline-offset-4">
-              Создать
-            </a>
-          </FieldDescription>
-        </Field>
+        <Button type="submit" size="lg" className="h-11 w-full" disabled={loading}>
+          {loading ? <Spinner className="size-5" /> : null}
+          {loading ? "Входим" : "Войти"}
+        </Button>
+
+        <p className="text-muted-foreground text-center text-sm">
+          Нет аккаунта?{" "}
+          <Link href="/signup" className="text-foreground font-medium underline underline-offset-4">
+            Зарегистрироваться
+          </Link>
+        </p>
       </FieldGroup>
     </form>
   )

@@ -1,113 +1,74 @@
 "use client"
 
-import { cn } from "@/lib/utils"
+import Link from "next/link"
+import { useState } from "react"
+import { IconAlertCircle, IconMailCheck } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field"
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { useEffect, useState } from "react"
-import { api } from "@/lib/api"
-import { getErrorMessage } from "@/lib/get-error-message"
-import { Spinner } from "./ui/spinner"
+import { Spinner } from "@/components/ui/spinner"
+import { errorText } from "@/lib/api"
+import { authApi } from "@/lib/services"
 
-export function ForgotPasswordForm({
-  className,
-  ...props
-}: React.ComponentProps<"form">) {
+export function ForgotPasswordForm() {
   const [email, setEmail] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
-  const [success, setSuccess] = useState(false)
+  const [sent, setSent] = useState(false)
 
-  useEffect(() => {
-    if (!error) return
-    const timer = setTimeout(() => setError(""), 2000)
-    return () => clearTimeout(timer)
-  }, [error])
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    setError("")
     setLoading(true)
     try {
-      await api.post("/auth/forgot-password", { email })
-      setSuccess(true)
+      await authApi.forgotPassword(email.trim())
+      setSent(true)
     } catch (err) {
-      setError(getErrorMessage(err, "Произошла ошибка"))
+      setError(errorText(err))
     } finally {
       setLoading(false)
     }
   }
 
-  if (success) {
+  if (sent) {
     return (
-      <div className="flex flex-col items-center gap-4 text-center">
-        <div className="text-4xl">📬</div>
-        <h1 className="text-2xl font-bold">Письмо отправлено</h1>
-        <p className="text-muted-foreground text-sm text-balance">
-          Если этот email зарегистрирован, на него придёт письмо со ссылкой для
-          сброса пароля.
+      <div className="space-y-4">
+        <IconMailCheck className="text-primary size-10" aria-hidden />
+        <h1 className="text-3xl font-semibold tracking-tight">Проверьте почту</h1>
+        <p className="text-muted-foreground text-sm">
+          Если адрес {email} зарегистрирован, мы отправили на него ссылку для смены пароля. Она действует один час.
         </p>
-        <a href="/login" className="text-sm underline underline-offset-4">
+        <Link href="/login" className="text-foreground text-sm font-medium underline underline-offset-4">
           Вернуться ко входу
-        </a>
+        </Link>
       </div>
     )
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className={cn("flex flex-col gap-6", className)}
-      {...props}
-    >
+    <form onSubmit={onSubmit}>
       <FieldGroup>
-        <div className="flex flex-col items-center gap-1 text-center">
-          <h1 className="text-2xl font-bold">Забыли пароль?</h1>
-          <p className="text-muted-foreground text-sm text-balance">
-            Введите email — мы пришлём ссылку для сброса пароля
-          </p>
+        <div className="space-y-2">
+          <h1 className="text-3xl font-semibold tracking-tight">Восстановление пароля</h1>
+          <p className="text-muted-foreground text-sm">Укажите email, и мы пришлём ссылку для смены пароля.</p>
         </div>
         <Field>
           <FieldLabel htmlFor="email">Email</FieldLabel>
-          <Input
-            id="email"
-            type="email"
-            placeholder="m@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+          <Input id="email" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} className="h-11" required />
         </Field>
-
-        <div
-          className={cn(
-            "overflow-hidden transition-all duration-300 ease-in-out",
-            error ? "max-h-16 opacity-100 mt-1" : "max-h-0 opacity-0 mt-0"
-          )}
-        >
-          <div className="flex items-center gap-2 rounded-md border border-red-200 bg-red-50 px-2 py-1 text-xs text-red-700">
-            <span className="leading-none">⚠️</span>
-            <span className="leading-tight">{error}</span>
-          </div>
-        </div>
-
-        <Field>
-          <Button type="submit" disabled={loading}>
-            {loading ? "Отправляем..." : "Отправить ссылку"}
-            {loading && <Spinner className="size-6" />}
-          </Button>
-        </Field>
-        <Field>
-          <FieldDescription className="text-center">
-            <a href="/login" className="underline underline-offset-4">
-              Вернуться ко входу
-            </a>
-          </FieldDescription>
-        </Field>
+        {error && (
+          <p role="alert" className="bg-danger-soft text-destructive flex items-start gap-2 rounded-lg px-3 py-2 text-sm">
+            <IconAlertCircle className="mt-0.5 size-4 shrink-0" aria-hidden />
+            <span>{error}</span>
+          </p>
+        )}
+        <Button type="submit" size="lg" className="h-11 w-full" disabled={loading}>
+          {loading ? <Spinner className="size-5" /> : null}
+          Отправить ссылку
+        </Button>
+        <Link href="/login" className="text-muted-foreground hover:text-foreground text-center text-sm underline-offset-4 hover:underline">
+          Вернуться ко входу
+        </Link>
       </FieldGroup>
     </form>
   )

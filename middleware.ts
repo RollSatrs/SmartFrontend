@@ -20,5 +20,6 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next|favicon.ico|public).*)"],
+  // /api идёт напрямую на backend (rewrite), проверять токен там должен сам backend.
+  matcher: ["/((?!api|_next|favicon.ico|public).*)"],
 }

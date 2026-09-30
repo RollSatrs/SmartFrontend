@@ -13,12 +13,16 @@ import {
   IconUserCheck,
   IconBuilding,
   IconExternalLink,
+  IconBulb,
+  IconBuildingBank,
 } from "@tabler/icons-react"
 import { Photo } from "@/components/app/photo"
 import { StatusBadge } from "@/components/app/status-badge"
 import { StatusTimeline } from "@/components/app/timeline"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useStreet } from "@/lib/address"
+import { useFeatures } from "@/lib/features"
+import { organDetails, organForSlug } from "@/lib/organs"
 import { formatLong } from "@/lib/format"
 import type { Idea } from "@/lib/types"
 import { cn } from "@/lib/utils"
@@ -28,13 +32,23 @@ const MapView = dynamic(() => import("@/components/app/map/view"), {
   loading: () => <Skeleton className="h-64 w-full rounded-2xl" />,
 })
 
-function Row({ icon: Icon, label, value }: { icon: React.ComponentType<{ className?: string }>; label: string; value: string }) {
+function Row({ icon: Icon, label, value, lines }: { icon: React.ComponentType<{ className?: string }>; label: string; value?: string; lines?: string[] }) {
   return (
     <div className="flex items-start gap-3 py-3 first:pt-0 last:pb-0">
       <Icon className="text-brand mt-0.5 size-5 shrink-0" />
       <div className="min-w-0">
         <dt className="text-muted-foreground text-xs">{label}</dt>
-        <dd className="text-sm font-medium text-pretty">{value}</dd>
+        {lines ? (
+          <dd className="space-y-0.5 text-sm text-pretty">
+            {lines.map((line, i) => (
+              <p key={line} className={i === 0 ? "font-medium" : "text-muted-foreground"}>
+                {line}
+              </p>
+            ))}
+          </dd>
+        ) : (
+          <dd className="text-sm font-medium text-pretty">{value}</dd>
+        )}
       </div>
     </div>
   )
@@ -77,6 +91,8 @@ function AiCheck({ idea }: { idea: Idea }) {
 /** Общая часть карточки обращения: для жителя и для госоргана. */
 export function IdeaDetail({ idea, showAi = false }: { idea: Idea; showAi?: boolean }) {
   const street = useStreet(idea.lat, idea.lng)
+  const { ideaKind } = useFeatures()
+  const organ = organForSlug(idea.category?.slug)
   const mapsUrl = `https://www.openstreetmap.org/?mlat=${idea.lat}&mlon=${idea.lng}#map=17/${idea.lat}/${idea.lng}`
 
   return (
@@ -92,7 +108,9 @@ export function IdeaDetail({ idea, showAi = false }: { idea: Idea; showAi?: bool
       {showAi && <AiCheck idea={idea} />}
 
       <dl className="bg-card divide-y rounded-2xl border p-4">
+        {ideaKind && idea.kind && <Row icon={IconBulb} label="Тип обращения" value={idea.kind === "idea" ? "Идея" : "Проблема"} />}
         <Row icon={IconCategory} label="Категория" value={idea.category?.name ?? "Определяется"} />
+        <Row icon={IconBuildingBank} label="Кому адресовано" lines={organ ? organDetails(organ) : ["Определяется после анализа"]} />
         <Row icon={IconSignRight} label="Адрес" value={street ?? "Определяется"} />
         <Row icon={IconBuilding} label="Район" value={idea.addressDistrict} />
         <Row icon={IconCalendar} label="Создана" value={formatLong(idea.createdAt)} />

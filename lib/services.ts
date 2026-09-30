@@ -8,6 +8,7 @@ import type {
   GovOfficial,
   Idea,
   IdeaPage,
+  IdeaKind,
   IdeaStatus,
   ParsedIdea,
   Role,
@@ -37,7 +38,7 @@ export const ideasApi = {
       })
       .then((r) => r.data.items),
   get: (id: number) => api.get<Idea>(`/ideas/${id}`).then((r) => r.data),
-  create: (payload: { title: string; description: string; lat: number; lng: number; photoUrl: string }) =>
+  create: (payload: { title: string; description: string; lat: number; lng: number; photoUrl: string; kind?: IdeaKind }) =>
     api.post<Idea>("/ideas", payload).then((r) => r.data),
   updateStatus: (id: number, status: IdeaStatus, comment?: string) =>
     api.patch<Idea>(`/ideas/${id}/status`, { status, comment }).then((r) => r.data),

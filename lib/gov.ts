@@ -1,13 +1,16 @@
 import { api } from "@/lib/api"
 import { daysLeft, isOpen, isUrgent } from "@/lib/format"
 import { ideasApi } from "@/lib/services"
-import type { Idea, IdeaStatus } from "@/lib/types"
+import { organForSlug } from "@/lib/organs"
+import type { Idea, IdeaKind, IdeaStatus } from "@/lib/types"
 
 export type GovFilterState = {
   search: string
   status: IdeaStatus | "all"
   category: string
   district: string
+  organ: string
+  kind: IdeaKind | ""
   mine: boolean
   urgent: boolean
   sort: "new" | "deadline"
@@ -18,6 +21,8 @@ export const DEFAULT_FILTERS: GovFilterState = {
   status: "all",
   category: "",
   district: "",
+  organ: "",
+  kind: "",
   mine: false,
   urgent: false,
   sort: "new",
@@ -29,6 +34,8 @@ export function applyFilters(ideas: Idea[], f: GovFilterState, myId: number | un
     if (f.status !== "all" && idea.status !== f.status) return false
     if (f.category && idea.category?.name !== f.category) return false
     if (f.district && idea.addressDistrict !== f.district) return false
+    if (f.organ && organForSlug(idea.category?.slug)?.short !== f.organ) return false
+    if (f.kind && idea.kind !== f.kind) return false
     if (f.mine && idea.assigneeId !== myId) return false
     if (f.urgent && !isUrgent(idea)) return false
     if (q && !`${idea.title} ${idea.description}`.toLowerCase().includes(q)) return false

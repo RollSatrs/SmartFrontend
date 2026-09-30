@@ -26,9 +26,11 @@ import { Spinner } from "@/components/ui/spinner"
 import { Textarea } from "@/components/ui/textarea"
 import { resolveStreet } from "@/lib/address"
 import { errorText } from "@/lib/api"
+import { useFeatures } from "@/lib/features"
 import { useDebounced } from "@/lib/hooks"
+import { organDetails, organForSlug } from "@/lib/organs"
 import { aiApi, geoApi, ideasApi, uploadPhoto } from "@/lib/services"
-import { categoryName, type AddressResult } from "@/lib/types"
+import { categoryName, KIND_LABEL, type AddressResult, type IdeaKind } from "@/lib/types"
 import { cn } from "@/lib/utils"
 
 const MapPicker = dynamic(() => import("@/components/app/map/picker"), {
@@ -59,6 +61,8 @@ export function NewIdeaForm() {
   const router = useRouter()
   const aiRef = useRef<HTMLTextAreaElement>(null)
   const askAi = useSearchParams().get("ai") === "1"
+  const { ideaKind } = useFeatures()
+  const [kind, setKind] = useState<IdeaKind>("problem")
 
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
@@ -142,6 +146,7 @@ export function NewIdeaForm() {
       setTitle(parsed.title)
       setDescription(parsed.description)
       setAiCategory(parsed.categorySlug)
+      if (parsed.kind) setKind(parsed.kind)
     } catch (e) {
       setAiError(errorText(e))
     } finally {
@@ -165,7 +170,15 @@ export function NewIdeaForm() {
     setError("")
     try {
       const photoUrl = await uploadPhoto(file)
-      const idea = await ideasApi.create({ title: title.trim(), description: description.trim(), lat: point.lat, lng: point.lng, photoUrl })
+      const idea = await ideasApi.create({
+        title: title.trim(),
+        description: description.trim(),
+        lat: point.lat,
+        lng: point.lng,
+        photoUrl,
+        // Тип уходит на сервер только если он его поддерживает: старый сервер отклонил бы лишнее поле.
+        kind: ideaKind ? kind : undefined,
+      })
       toast.success("Идея отправлена")
       router.replace(`/ideas/${idea.id}`)
     } catch (e) {
@@ -212,6 +225,16 @@ export function NewIdeaForm() {
             </span>
           )}
         </div>
+        {aiCategory && !aiBusy && organForSlug(aiCategory) && (
+          <div className="bg-card text-sm rounded-xl p-3">
+            <p className="text-muted-foreground text-xs">Кому адресуем</p>
+            {organDetails(organForSlug(aiCategory)!).map((line, i) => (
+              <p key={line} className={i === 0 ? "font-medium" : "text-muted-foreground text-xs"}>
+                {line}
+              </p>
+            ))}
+          </div>
+        )}
         {aiError && (
           <p role="alert" className="text-destructive text-sm">
             {aiError}
@@ -221,6 +244,25 @@ export function NewIdeaForm() {
       </section>
 
       <Section step={1} title="Опишите идею">
+        {ideaKind && (
+          <div role="radiogroup" aria-label="Тип обращения" className="bg-muted grid grid-cols-2 gap-1 rounded-xl p-1">
+            {(Object.keys(KIND_LABEL) as IdeaKind[]).map((key) => (
+              <button
+                key={key}
+                type="button"
+                role="radio"
+                aria-checked={kind === key}
+                onClick={() => setKind(key)}
+                className={cn(
+                  "h-9 rounded-lg text-sm font-medium transition-colors",
+                  kind === key ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {KIND_LABEL[key]}
+              </button>
+            ))}
+          </div>
+        )}
         <div className="space-y-2">
           <label htmlFor="title" className="text-sm font-medium">
             Короткое название

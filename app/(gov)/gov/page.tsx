@@ -12,11 +12,13 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { errorText } from "@/lib/api"
 import { useAuth } from "@/lib/auth"
+import { useFeatures } from "@/lib/features"
+import { organForSlug } from "@/lib/organs"
 import { appeals, isOpen, isUrgent } from "@/lib/format"
 import { applyFilters, DEFAULT_FILTERS, takeInWork, type GovFilterState } from "@/lib/gov"
 import { useData } from "@/lib/hooks"
 import { ideasApi } from "@/lib/services"
-import { STATUSES, STATUS_LABEL } from "@/lib/types"
+import { KIND_LABEL, STATUSES, STATUS_LABEL, type IdeaKind } from "@/lib/types"
 import { cn } from "@/lib/utils"
 
 const selectClass =
@@ -24,15 +26,17 @@ const selectClass =
 
 export default function GovHome() {
   const { user } = useAuth()
+  const { ideaKind } = useFeatures()
   const { data: ideas, setData, loading, error, retry } = useData(() => ideasApi.listAll())
   const [f, setF] = useState<GovFilterState>(DEFAULT_FILTERS)
   const set = <K extends keyof GovFilterState>(key: K, value: GovFilterState[K]) => setF((prev) => ({ ...prev, [key]: value }))
 
   const all = useMemo(() => ideas ?? [], [ideas])
   const categories = useMemo(() => [...new Set(all.map((i) => i.category?.name).filter(Boolean))].sort() as string[], [all])
+  const organs = useMemo(() => [...new Set(all.map((i) => organForSlug(i.category?.slug)?.short).filter(Boolean))].sort() as string[], [all])
   const districts = useMemo(() => [...new Set(all.map((i) => i.addressDistrict))].sort(), [all])
   const shown = useMemo(() => applyFilters(all, f, user?.id), [all, f, user?.id])
-  const hasExtra = f.category || f.district || f.mine || f.urgent || f.search || f.status !== "all"
+  const hasExtra = f.category || f.district || f.organ || f.kind || f.mine || f.urgent || f.search || f.status !== "all"
 
   async function take(id: number) {
     const idea = all.find((i) => i.id === id)
@@ -119,6 +123,24 @@ export default function GovHome() {
               </option>
             ))}
           </select>
+          <select aria-label="Орган" aria-current={!!f.organ} className={selectClass} value={f.organ} onChange={(e) => set("organ", e.target.value)}>
+            <option value="">Все органы</option>
+            {organs.map((o) => (
+              <option key={o} value={o}>
+                {o}
+              </option>
+            ))}
+          </select>
+          {ideaKind && (
+            <select aria-label="Тип" aria-current={!!f.kind} className={selectClass} value={f.kind} onChange={(e) => set("kind", e.target.value as IdeaKind | "")}>
+              <option value="">Все типы</option>
+              {(Object.keys(KIND_LABEL) as IdeaKind[]).map((k) => (
+                <option key={k} value={k}>
+                  {KIND_LABEL[k]}
+                </option>
+              ))}
+            </select>
+          )}
           <select aria-label="Район" aria-current={!!f.district} className={selectClass} value={f.district} onChange={(e) => set("district", e.target.value)}>
             <option value="">Все районы</option>
             {districts.map((d) => (

@@ -1,8 +1,9 @@
 import Link from "next/link"
-import { IconAlertTriangleFilled, IconClock, IconMapPin, IconUserCheck } from "@tabler/icons-react"
+import { IconAlertTriangleFilled, IconBulb, IconClock, IconMapPin, IconUserCheck } from "@tabler/icons-react"
 import { Photo } from "@/components/app/photo"
 import { StatusBadge } from "@/components/app/status-badge"
 import { useStreet } from "@/lib/address"
+import { useFeatures } from "@/lib/features"
 import { daysLeft, deadlineText, formatShort } from "@/lib/format"
 import type { Idea } from "@/lib/types"
 import { cn } from "@/lib/utils"
@@ -22,6 +23,7 @@ function DeadlineChip({ idea }: { idea: Idea }) {
 
 export function IdeaCard({ idea, href, showDeadline = false }: { idea: Idea; href: string; showDeadline?: boolean }) {
   const street = useStreet(idea.lat, idea.lng)
+  const { ideaKind } = useFeatures()
   return (
     <Link
       href={href}
@@ -46,6 +48,12 @@ export function IdeaCard({ idea, href, showDeadline = false }: { idea: Idea; hre
           {idea.title}
         </h3>
         <div className="text-muted-foreground flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px]">
+          {ideaKind && idea.kind === "idea" && (
+            <span className="bg-gold-soft text-gold-ink inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium">
+              <IconBulb className="size-3.5" aria-hidden />
+              Идея
+            </span>
+          )}
           {idea.category && (
             <span className="bg-sage-soft text-sage-ink rounded-full px-2 py-0.5 text-xs font-medium">{idea.category.name}</span>
           )}

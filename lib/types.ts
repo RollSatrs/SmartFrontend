@@ -37,6 +37,10 @@ export const NEXT_STEP: Record<IdeaStatus, IdeaStatus | null> = {
   rejected: null,
 }
 
+export type IdeaKind = "problem" | "idea"
+
+export const KIND_LABEL: Record<IdeaKind, string> = { problem: "Проблема", idea: "Идея" }
+
 export type PhotoFlag = "consistent" | "inconsistent" | "uncertain"
 
 export type IdeaCategory = { id: number; name: string; slug: string }
@@ -56,6 +60,8 @@ export type Idea = {
   description: string
   category: IdeaCategory | null
   status: IdeaStatus
+  /** Старый сервер поля не отдаёт, поэтому необязательное. */
+  kind?: IdeaKind
   lat: number
   lng: number
   addressDistrict: string
@@ -106,7 +112,7 @@ export type DigestItem = {
 }
 export type Digest = { items: DigestItem[]; insight: DigestItem | null }
 
-export type ParsedIdea = { title: string; description: string; categorySlug: string | null }
+export type ParsedIdea = { title: string; description: string; categorySlug: string | null; kind?: IdeaKind }
 
 export type AddressResult = { displayName: string; lat: number; lng: number }
 
